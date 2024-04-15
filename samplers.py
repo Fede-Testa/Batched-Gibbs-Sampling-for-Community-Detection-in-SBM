@@ -85,7 +85,7 @@ class sequential_Gibbs_sampler():
         Update the beta parameters based on the current community assignments.
         """
         A_lower = np.tril(self.A)
-        cA_lower = np.tril(np.ones((self.n,self.n))) - np.eye(self.n) - A_lower
+        cA_lower = np.tril(np.ones((self.n, self.n))) - np.eye(self.n) - A_lower
 
         U = self.Z.T @ A_lower @ self.Z
         cU = self.Z.T @ cA_lower @ self.Z
@@ -283,7 +283,7 @@ class batched_Gibbs_sampler():
         Updates the posterior hyperparameters alpha_p, beta_p, alpha_q, beta_q, and samples p and q.
         """
         A_lower = np.tril(self.A)
-        cA_lower = np.tril(np.ones((self.n,self.n))) - np.eye(self.n) - A_lower
+        cA_lower = np.tril(np.ones((self.n, self.n))) - np.eye(self.n) - A_lower
 
         U = self.Z.T @ A_lower @ self.Z
         cU = self.Z.T @ cA_lower @ self.Z
@@ -295,11 +295,11 @@ class batched_Gibbs_sampler():
         np.fill_diagonal(U, 0)
         np.fill_diagonal(cU, 0)
 
-        self.alpha_q = self.alpha_q_pri +  np.sum(U)
+        self.alpha_q = self.alpha_q_pri + np.sum(U)
         self.beta_q = self.beta_q_pri + np.sum(cU)
 
         self.p = np.random.beta(self.alpha_p, self.beta_p)
-        self.q = np.random.beta(self.alpha_q,self.beta_q)
+        self.q = np.random.beta(self.alpha_q, self.beta_q)
         self.p_list.append(self.p)
         self.q_list.append(self.q)
         return
@@ -317,13 +317,16 @@ class batched_Gibbs_sampler():
         lambd_mat = lambd * ( np.ones((self.n, self.n)) - np.eye(self.n) )
 
         # batch update on pi
-        self.pi = self.pi_pri * np.exp(2 * t * (self.A - lambd_mat).T @ self.Z)
+        self.pi = self.pi_pri * np.exp(2 * t * (self.A - lambd_mat) @ self.Z)
+        #self.pi = self.pi_pri * np.exp(2 * t * (self.A - lambd).T @ self.Z)
+
         self.pi = self.pi / np.sum(self.pi, axis=1).reshape(-1, 1)
 
         # sample z from pi
         # using gumbel trick to exploit parallelization
         self.z = np.argmax(np.log(self.pi) + rnd.gumbel(size=self.pi.shape), axis=1)
         #self.z = np.array([np.random.choice(self.k, p=self.pi[i,:]) for i in range(self.n)])
+        self.Z = one_hot_encode(self.z)
         if append:
             self.z_list.append(self.z.copy())
 
