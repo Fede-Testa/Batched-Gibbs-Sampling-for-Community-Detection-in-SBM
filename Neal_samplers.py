@@ -63,7 +63,7 @@ class Neal_sequential_Gibbs_sampler():
         self.beta_q_pri = beta_q_pri
 
         if gamma is None:
-            self.gamma = np.ones((self.n,self.k))
+            self.gamma = np.ones((self.n, self.k))
         elif isinstance(gamma, (int, float)):
             self.gamma = np.ones((self.n,self.k)) * gamma
         elif gamma.shape == (self.k,):
@@ -358,14 +358,14 @@ class Neal_batched_Gibbs_sampler():
         #self.z = np.array([np.random.choice(self.k, p=self.pi[i,:]) for i in range(self.n)])
         self.Z = one_hot_encode(self.z)
 
-        # added part to handle "collapse" of communities
-        if self.Z.shape[1] != self.k:
-            print("Community collapse")
-            self.z[0] = 0
-            self.z[1] = 1
-            self.z[2] = 2
-            self.z[3] = 3
-            self.Z = one_hot_encode(self.z)
+        # # added part to handle "collapse" of communities
+        # if self.Z.shape[1] != self.k:
+        #     print("Community collapse")
+        #     self.z[0] = 0
+        #     self.z[1] = 1
+        #     self.z[2] = 2
+        #     self.z[3] = 3
+        #     self.Z = one_hot_encode(self.z)
 
         if append:
             self.z_list.append(self.z.copy())
