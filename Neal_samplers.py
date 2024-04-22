@@ -281,13 +281,14 @@ class Neal_batched_Gibbs_sampler():
             self.gamma = np.ones((self.n,self.k))
         elif isinstance(gamma, (int, float)):
             self.gamma = np.ones((self.n,self.k)) * gamma
-        elif gamma.shape == (self.k,):
-            self.gamma = np.zeros((self.n,self.k))
-            for i in range(self.n):
-                self.gamma[i,:] = gamma
-        else:
-            assert gamma.shape == (self.n,self.k), "gamma must have shape (n,k), (k,), be None or be a scalar"
-            self.gamma = np.array(gamma)
+        else: 
+            gamma = np.array(gamma)
+            if gamma.shape == (self.k,):
+                self.gamma = np.zeros((self.n,self.k))
+                for i in range(self.n):
+                    self.gamma[i,:] = gamma
+            else:
+                assert gamma.shape == (self.n,self.k), "gamma must have shape (n,k), (k,), be None or be a scalar"
 
         #lists for analyses
         self.z_list=[self.z]

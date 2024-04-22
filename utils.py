@@ -1,34 +1,60 @@
 import numpy as np
 import itertools
+import networkx as nx
+from networkx.algorithms.community.quality import modularity
 
 ###########################################################
 #GENERAL UTILS
 ###########################################################
-def one_hot_encode(x):
+# def one_hot_encode(x):
+#     """
+#     One-hot encodes an array of labels.
+
+#     Parameters:
+#     - x (array-like): The input array of labels.
+
+#     Returns:
+#     - X (ndarray): The one-hot encoded array.
+
+#     Example:
+#     >>> labels = [0, 1, 2, 1, 0]
+#     >>> one_hot_encode(labels)
+#     array([[1, 0, 0],
+#         [0, 1, 0],
+#         [0, 0, 1],
+#         [0, 1, 0],
+#         [1, 0, 0]])
+#     """
+#     # Map the labels to integers starting from 0
+#     unique_labels, x_int = np.unique(x, return_inverse=True)
+#     dim = len(unique_labels)
+#     X = np.zeros((len(x_int), dim))
+#     X[np.arange(len(x_int)), x_int] = 1
+#     X = X.astype(int)
+#     return X
+
+def one_hot_encode(x, k=4):
     """
-    One-hot encodes an array of labels.
+    One-hot encodes an array of k labels.
 
     Parameters:
     - x (array-like): The input array of labels.
+    - k (int): The number of classes.
 
     Returns:
     - X (ndarray): The one-hot encoded array.
 
     Example:
     >>> labels = [0, 1, 2, 1, 0]
-    >>> one_hot_encode(labels)
+    >>> one_hot_encode(labels, 3)
     array([[1, 0, 0],
         [0, 1, 0],
         [0, 0, 1],
         [0, 1, 0],
         [1, 0, 0]])
     """
-    # Map the labels to integers starting from 0
-    unique_labels, x_int = np.unique(x, return_inverse=True)
-    dim = len(unique_labels)
-    X = np.zeros((len(x_int), dim))
-    X[np.arange(len(x_int)), x_int] = 1
-    X = X.astype(int)
+    X = np.zeros((len(x), k))
+    X[np.arange(len(x)), x] = 1
     return X
 
 def loss(true_labels, predicted_labels):
@@ -246,4 +272,28 @@ def warm_initializer(z_true, alpha, n, k):
             z[i] = z_true[i]
     return z.astype(int)
 
+##########################################################
+# Modularity utils
+##########################################################
+def compute_modularity(A, z):
+    """
+    Compute the modularity of a network given its adjacency matrix and node assignments.
 
+    Parameters:
+    A (numpy.ndarray): The adjacency matrix of the network.
+    z (list): The node assignment vector.
+
+    Returns:
+    float: The modularity of the network.
+
+    """
+    # Convert the adjacency matrix to a NetworkX graph
+    G = nx.from_numpy_array(np.array(A))
+
+    # Convert the assignment vector to a partition
+    partition = [set([idx for idx, value in enumerate(z) if value == class_]) for class_ in set(z)]
+
+    # Compute the modularity of the network
+    Q = modularity(G, partition)
+
+    return Q
