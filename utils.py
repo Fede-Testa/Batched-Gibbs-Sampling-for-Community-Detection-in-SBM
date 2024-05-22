@@ -6,56 +6,60 @@ from networkx.algorithms.community.quality import modularity
 ###########################################################
 #GENERAL UTILS
 ###########################################################
-# def one_hot_encode(x):
-#     """
-#     One-hot encodes an array of labels.
-
-#     Parameters:
-#     - x (array-like): The input array of labels.
-
-#     Returns:
-#     - X (ndarray): The one-hot encoded array.
-
-#     Example:
-#     >>> labels = [0, 1, 2, 1, 0]
-#     >>> one_hot_encode(labels)
-#     array([[1, 0, 0],
-#         [0, 1, 0],
-#         [0, 0, 1],
-#         [0, 1, 0],
-#         [1, 0, 0]])
-#     """
-#     # Map the labels to integers starting from 0
-#     unique_labels, x_int = np.unique(x, return_inverse=True)
-#     dim = len(unique_labels)
-#     X = np.zeros((len(x_int), dim))
-#     X[np.arange(len(x_int)), x_int] = 1
-#     X = X.astype(int)
-#     return X
-
-def one_hot_encode(x, k=4):
+def one_hot_encode(x, k = None):
     """
-    One-hot encodes an array of k labels.
+    One-hot encodes an array of labels.
 
     Parameters:
     - x (array-like): The input array of labels.
-    - k (int): The number of classes.
 
     Returns:
     - X (ndarray): The one-hot encoded array.
 
     Example:
     >>> labels = [0, 1, 2, 1, 0]
-    >>> one_hot_encode(labels, 3)
+    >>> one_hot_encode(labels)
     array([[1, 0, 0],
         [0, 1, 0],
         [0, 0, 1],
         [0, 1, 0],
         [1, 0, 0]])
     """
-    X = np.zeros((len(x), k))
-    X[np.arange(len(x)), x] = 1
+    if k is None:
+        # Map the labels to integers starting from 0
+        unique_labels, x_int = np.unique(x, return_inverse=True)
+        dim = len(unique_labels)
+        X = np.zeros((len(x_int), dim))
+        X[np.arange(len(x_int)), x_int] = 1
+        X = X.astype(int)
+    else:
+        X = np.zeros((len(x), k))
+        X[np.arange(len(x)), x] = 1
     return X
+
+# def one_hot_encode(x, k=4):
+#     """
+#     One-hot encodes an array of k labels.
+
+#     Parameters:
+#     - x (array-like): The input array of labels.
+#     - k (int): The number of classes.
+
+#     Returns:
+#     - X (ndarray): The one-hot encoded array.
+
+#     Example:
+#     >>> labels = [0, 1, 2, 1, 0]
+#     >>> one_hot_encode(labels, 3)
+#     array([[1, 0, 0],
+#         [0, 1, 0],
+#         [0, 0, 1],
+#         [0, 1, 0],
+#         [1, 0, 0]])
+#     """
+#     X = np.zeros((len(x), k))
+#     X[np.arange(len(x)), x] = 1
+#     return X
 
 def loss(true_labels, predicted_labels):
     """
@@ -131,7 +135,7 @@ def Bernoulli_Renyi_divergence(p, q, alpha=0.5):
 
 def generate_sbm(n, k, P, pi=None, z_t=None, return_Z=False):
     """
-    Generate a Stochastic Block Model (SBM) graph.
+    Generate a Stochastic Block Model (SBM) graph, given the connectivity probablilities and the number of communities.
 
     Parameters:
     - n (int): Number of nodes in the graph.
